@@ -7,7 +7,7 @@ SIZE = 40
 BACKGROUND_COLOR = (123, 212, 15)
 
 
-class Apple:
+class Mouse:
     def __init__(self, parent_screen):
         self.parent_screen = parent_screen
         self.image = pygame.image.load("resources/mice.png").convert()
@@ -83,8 +83,8 @@ class Game:
         self.surface = pygame.display.set_mode((1000, 800))
         self.snake = Snake(self.surface, 1)
         self.snake.draw()
-        self.Apple = Apple(self.surface)
-        self.Apple.draw()
+        self.Mouse = Mouse(self.surface)
+        self.Mouse.draw()
 
     def is_collision(self, x1, y1, x2, y2):
         if x1 >= x2 and x1 < x2 + SIZE:
@@ -100,6 +100,7 @@ class Game:
     def play_background_music(self):
         pygame.mixer.music.load("resources/background_music.mp3")
         pygame.mixer.music.play(10000)
+
     def play_sound(self, sound):
         sound = pygame.mixer.Sound(f"resources/{sound}.mp3")
         pygame.mixer.Sound.play(sound)
@@ -107,18 +108,19 @@ class Game:
     def render_background(self):
         background = pygame.image.load("resources/background1.png")
         self.surface.blit(background, (0, 0))
+
     def play(self):
         self.render_background()
         self.snake.walk()
-        self.Apple.draw()
+        self.Mouse.draw()
         self.display_score()
         pygame.display.flip()
 
         # snake colliding with apple
-        if self.is_collision(self.snake.x[0], self.snake.y[0], self.Apple.x, self.Apple.y):
+        if self.is_collision(self.snake.x[0], self.snake.y[0], self.Mouse.x, self.Mouse.y):
             self.play_sound("ding")
             self.snake.increase_length()
-            self.Apple.move()
+            self.Mouse.move()
         # snake colliding with itself
         for i in range(4, self.snake.length):
             if self.is_collision(self.snake.x[0], self.snake.y[0], self.snake.x[i], self.snake.y[i]):
@@ -143,7 +145,7 @@ class Game:
 
     def reset(self):
         self.snake = Snake(self.surface, 1)
-        self.Apple = Apple(self.surface)
+        self.Mouse = Mouse(self.surface)
 
     def run(self):
         running = True
