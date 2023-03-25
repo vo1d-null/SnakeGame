@@ -126,6 +126,9 @@ class Game:
             if self.is_collision(self.snake.x[0], self.snake.y[0], self.snake.x[i], self.snake.y[i]):
                 self.play_sound("death1")
                 raise "Game Over"
+        if not (0 <= self.snake.x[0] <= 960 and 0 <= self.snake.y[0] <= 760):
+            self.play_sound('death1')
+            raise "Collision with boundary"
 
     def show_game_over(self):
         self.render_background()
