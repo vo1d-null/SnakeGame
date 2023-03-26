@@ -26,7 +26,7 @@ class Mouse:
 class Snake:
     def __init__(self, parent_screen, length):
         self.parent_screen = parent_screen
-        self.image = pygame.image.load("resources/snak.png").convert()
+        self.image = pygame.image.load("resources/snake4.jpg").convert()
         self.direction = 'down'
 
         self.length = length
@@ -116,7 +116,7 @@ class Game:
         self.display_score()
         pygame.display.flip()
 
-        # snake colliding with apple
+        # snake colliding with mouse
         if self.is_collision(self.snake.x[0], self.snake.y[0], self.Mouse.x, self.Mouse.y):
             self.play_sound("ding")
             self.snake.increase_length()
