@@ -7,7 +7,12 @@ The game keeps track of the score, which is the length of the snake. When the sn
 The code consists of three classes: Mouse, Snake, and Game. The Mouse class handles the movement and rendering of the mouse, while the Snake class handles the movement and rendering of the snake. The Game class initializes the game and handles the game loop, collision detection, and score display.
 
 The code also includes functions for rendering the background, playing sound effects, and showing the game over screen.
- 
+
+# Screenshots:
+
+ ![sc1](https://user-images.githubusercontent.com/123015737/227749265-3b4986ef-5bc1-4bcf-830e-cf65f2bf0342.jpg)
+![sc2](https://user-images.githubusercontent.com/123015737/227749266-8670eb1d-3594-4c8a-89a6-e5d647250c62.jpg)
+
 Background music by :
 
 Velocity by kaleido | https://soundcloud.com/kaleidosounds
