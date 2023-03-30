@@ -10,7 +10,7 @@ BACKGROUND_COLOR = (123, 212, 15)
 class Mouse:
     def __init__(self, parent_screen):
         self.parent_screen = parent_screen
-        self.image = pygame.image.load("resources/mice.png").convert()
+        self.image = pygame.image.load("resources/mice.png").convert_alpha(self.parent_screen)
         self.x = 120
         self.y = 120
 
@@ -23,10 +23,50 @@ class Mouse:
         self.y = random.randint(2, 19) * SIZE
 
 
+class Skull:
+    def __init__(self, parent_screen,):
+        self.parent_screen = parent_screen
+        self.image = pygame.image.load("resources/skull2.png").convert_alpha(self.parent_screen)
+        self.length = 1
+        self.x = random.randint(2, 19) * SIZE
+        self.y = random.randint(2, 19) * SIZE
+        random_direction = ['left', 'right', 'up', 'down']
+        random_direction2 = random.choice(random_direction)
+        self.direction = random_direction2
+
+    def move(self):
+        self.y = random.randint(2, 19) * SIZE
+        self.x = random.randint(2, 19) * SIZE
+
+    def walk(self):
+        # update body
+        for i in range(self.length - 1, 0, -1):
+            self.x = self.x[i - 1]
+            self.y = self.y[i - 1]
+
+        # update head
+        if self.direction == 'left':
+            self.x -= SIZE / 4
+        if self.direction == 'right':
+            self.x += SIZE / 4
+        if self.direction == 'up':
+            self.y -= SIZE / 4
+        if self.direction == 'down':
+            self.y += SIZE / 4
+
+        self.draw()
+
+    def draw(self):
+
+        for i in range(self.length):
+            self.parent_screen.blit(self.image, (self.x, self.y))
+
+
 class Snake:
     def __init__(self, parent_screen, length):
         self.parent_screen = parent_screen
-        self.image = pygame.image.load("resources/snake4.jpg").convert()
+        self.image = pygame.image.load("resources/snake_head.png").convert_alpha(self.parent_screen)
+        self.image2 = pygame.image.load("resources/snake4.jpg").convert(self.parent_screen)
         self.direction = 'down'
 
         self.length = length
@@ -35,15 +75,19 @@ class Snake:
 
     def move_left(self):
         self.direction = 'left'
+        # self.image = pygame.transform.flip(self.image, True, False)
 
     def move_right(self):
         self.direction = 'right'
+        # self.image = pygame.transform.flip(self.image, True, False)
 
     def move_up(self):
         self.direction = 'up'
+        # self.image = pygame.transform.flip(self.image, False, True)
 
     def move_down(self):
         self.direction = 'down'
+        # self.image = pygame.transform.flip(self.image, False, True)
 
     def walk(self):
         for i in range(self.length - 1, 0, -1):
@@ -63,11 +107,17 @@ class Snake:
 
     def draw(self):
         for i in range(self.length):
-            self.parent_screen.blit(self.image, (self.x[i], self.y[i]))
+            self.parent_screen.blit(self.image, (self.x[0], self.y[0]))
+            self.parent_screen.blit(self.image2, (self.x[i], self.y[i]))
         pygame.display.flip()
 
     def increase_length(self):
         self.length += 1
+        self.x.append(-1)
+        self.y.append(-1)
+
+    def decrease_length(self):
+        self.length -= 1
         self.x.append(-1)
         self.y.append(-1)
 
@@ -83,6 +133,8 @@ class Game:
         self.surface = pygame.display.set_mode((1000, 800))
         self.snake = Snake(self.surface, 1)
         self.snake.draw()
+        self.skull = Skull(self.surface)
+        self.skull.draw()
         self.Mouse = Mouse(self.surface)
         self.Mouse.draw()
 
@@ -113,6 +165,7 @@ class Game:
         self.render_background()
         self.snake.walk()
         self.Mouse.draw()
+        self.skull.walk()
         self.display_score()
         pygame.display.flip()
 
@@ -121,14 +174,35 @@ class Game:
             self.play_sound("ding")
             self.snake.increase_length()
             self.Mouse.move()
+
+        # snake eating skull scenario
+        if self.is_collision(self.snake.x[0], self.snake.y[0], self.skull.x, self.skull.y):
+            for i in range(self.snake.length):
+                self.snake.decrease_length()
+            self.skull.move()
+
         # snake colliding with itself
         for i in range(4, self.snake.length):
             if self.is_collision(self.snake.x[0], self.snake.y[0], self.snake.x[i], self.snake.y[i]):
                 self.play_sound("death1")
                 raise "Game Over"
+
+            # snake colliding with boundary
         if not (0 <= self.snake.x[0] <= 960 and 0 <= self.snake.y[0] <= 760):
             self.play_sound('death1')
             raise "Collision with boundary"
+
+        # skull colliding with SNAKE BODY
+        for i in range(2, self.snake.length):
+            if self.is_collision(self.skull.x, self.skull.y, self.snake.x[i], self.snake.y[i]):
+                for snakeBody in range(self.snake.length):
+                    self.snake.decrease_length()
+                self.skull.move()
+
+            # skull colliding with boundary
+        if not (0 <= self.skull.x <= 960 and 0 <= self.skull.y <= 760):
+            self.skull = Skull(self.surface)
+            self.skull.walk()
 
     def show_game_over(self):
         self.render_background()
@@ -149,6 +223,7 @@ class Game:
     def reset(self):
         self.snake = Snake(self.surface, 1)
         self.Mouse = Mouse(self.surface)
+        self.skull = Skull(self.surface)
 
     def run(self):
         running = True
@@ -184,7 +259,7 @@ class Game:
                 pause = True
                 self.reset()
 
-            time.sleep(.2)
+            time.sleep(.1)
 
 
 if __name__ == '__main__':
