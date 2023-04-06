@@ -62,6 +62,45 @@ class Skull:
             self.parent_screen.blit(self.image, (self.x, self.y))
 
 
+class Mouse2:
+    def __init__(self, parent_screen,):
+        self.parent_screen = parent_screen
+        self.image = pygame.image.load("resources/Mouse2.png").convert_alpha(self.parent_screen)
+        self.length = 1
+        self.x = random.randint(2, 19) * SIZE
+        self.y = random.randint(2, 19) * SIZE
+        random_direction = ['left', 'down', 'up', 'right']
+        random_direction2 = random.choice(random_direction)
+        self.direction = random_direction2
+
+    def move(self):
+        self.y = random.randint(2, 19) * SIZE
+        self.x = random.randint(2, 19) * SIZE
+
+    def walk(self):
+        # update body
+        for i in range(self.length - 1, 0, -1):
+            self.x = self.x[i - 1]
+            self.y = self.y[i - 1]
+
+        # update head
+        if self.direction == 'left':
+            self.x -= SIZE / 4
+        if self.direction == 'right':
+            self.x += SIZE / 4
+        if self.direction == 'up':
+            self.y -= SIZE / 4
+        if self.direction == 'down':
+            self.y += SIZE / 4
+
+        self.draw()
+
+    def draw(self):
+
+        for i in range(self.length):
+            self.parent_screen.blit(self.image, (self.x, self.y))
+
+
 class Snake:
     def __init__(self, parent_screen, length):
         self.parent_screen = parent_screen
@@ -76,18 +115,22 @@ class Snake:
     def move_left(self):
         self.direction = 'left'
         # self.image = pygame.transform.flip(self.image, True, False)
+        # self.image = pygame.transform.rotate(self.image, -180.0)
 
     def move_right(self):
         self.direction = 'right'
         # self.image = pygame.transform.flip(self.image, True, False)
+        # self.image = pygame.transform.rotate(self.image, 180.0)
 
     def move_up(self):
         self.direction = 'up'
         # self.image = pygame.transform.flip(self.image, False, True)
+        # self.image = pygame.transform.rotate(self.image, 360.0)
 
     def move_down(self):
         self.direction = 'down'
         # self.image = pygame.transform.flip(self.image, False, True)
+        # self.image = pygame.transform.rotate(self.image, -360.0)
 
     def walk(self):
         for i in range(self.length - 1, 0, -1):
@@ -137,6 +180,8 @@ class Game:
         self.skull.draw()
         self.Mouse = Mouse(self.surface)
         self.Mouse.draw()
+        self.Mouse2 = Mouse2(self.surface)
+        self.Mouse2.draw()
 
     def is_collision(self, x1, y1, x2, y2):
         if x1 >= x2 and x1 < x2 + SIZE:
@@ -151,10 +196,12 @@ class Game:
 
     def play_background_music(self):
         pygame.mixer.music.load("resources/background_music.mp3")
+        pygame.mixer.music.set_volume(.1)
         pygame.mixer.music.play(10000)
 
     def play_sound(self, sound):
         sound = pygame.mixer.Sound(f"resources/{sound}.mp3")
+        sound.set_volume(0.1)
         pygame.mixer.Sound.play(sound)
 
     def render_background(self):
@@ -165,6 +212,7 @@ class Game:
         self.render_background()
         self.snake.walk()
         self.Mouse.draw()
+        self.Mouse2.walk()
         self.skull.walk()
         self.display_score()
         pygame.display.flip()
@@ -203,6 +251,30 @@ class Game:
         if not (0 <= self.skull.x <= 960 and 0 <= self.skull.y <= 760):
             self.skull = Skull(self.surface)
             self.skull.walk()
+
+            # Mouse2 colliding with snake
+        if self.is_collision(self.snake.x[0], self.snake.y[0], self.Mouse.x, self.Mouse.y):
+            self.play_sound("ding")
+            self.snake.increase_length()
+            self.Mouse2.move()
+
+            # Mouse2 colliding with SNAKE BODY
+        for i in range(2, self.snake.length):
+            if self.is_collision(self.Mouse2.x, self.Mouse2.y, self.snake.x[i], self.snake.y[i]):
+                for snakeBody in range(self.snake.length - self.snake.length + 3):
+                    self.snake.decrease_length()
+                self.Mouse2.move()
+
+            # Mouse2 colliding with boundary
+        if not (0 <= self.Mouse2.x <= 960 and 0 <= self.Mouse2.y <= 760):
+            self.Mouse2 = Mouse2(self.surface)
+            self.Mouse2.walk()
+
+            # Mouse2 colliding with snake Head
+        if self.is_collision(self.snake.x[0], self.snake.y[0], self.Mouse2.x, self.Mouse2.y):
+            for i in range(self.snake.length - self.snake.length - 3):
+                self.snake.increase_length()
+            self.Mouse2.move()
 
     def show_game_over(self):
         self.render_background()
