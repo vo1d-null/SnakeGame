@@ -1,4 +1,4 @@
-# Snake and Mouse game by vo1d.null
+# Snake and Mouse game (WIP) by vo1d.null
  
  # About the code
 This is a Snake game implemented in Python using the Pygame library. The game consists of a snake and a mouse, and the objective is to guide the snake towards the mouse so that it can eat it and grow longer. The player can control the direction of the snake using the arrow keys on the keyboard.
